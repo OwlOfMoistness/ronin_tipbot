@@ -17,7 +17,7 @@ namespace TipBot {
             }
             else {
                 Mongo.DatabaseConnection.DatabaseName = "TipDataTest";
-                SmartContract.RONIN_ENDPOINT = "http://localhost:8845";
+                SmartContract.RONIN_ENDPOINT = args[5];
             }
             RunBot(token: args[2], prefix: args[3]);
         }
