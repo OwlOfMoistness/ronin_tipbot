@@ -24,7 +24,7 @@ namespace TipBot {
         //public static string TIP_ADDRESS = "0xa6dc4ebf7b56e2f9c0e701939f24e2122af3f681";
         public static string TIP_ADDRESS = "0xA646Ac048c316de2479c6A1Ab81317303296f45C";
         //public static string RONIN_ENDPOINT = "http://localhost:8845";
-        public static string RONIN_ENDPOINT = "http://10.0.0.1:8845";
+        public static string RONIN_ENDPOINT = "http://10.0.0.10:8845";
         public static bool withdrawalPossible = true;
         public static string DiscoKey;
 
