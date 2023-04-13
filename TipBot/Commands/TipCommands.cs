@@ -198,7 +198,7 @@ namespace TipBot {
                 var fee = 0;
                 strFee = fee.ToString();
             }
-            else if (symbol.ToUpper() == "AXS") {
+            else if (symbol.ToUpper() == "AXS" || symbol.ToUpper() == "RON") {
                 token = await ServiceData.GetTokenSymbol(symbol);
                 //if (TipWallet.IsValidValue(value, token.Decimal)) {
                 //    //var val = TipWallet.ParseValueToTokenDecimal(value, token.Decimal);
