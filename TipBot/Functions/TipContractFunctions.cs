@@ -22,6 +22,21 @@ namespace TipBot.Functions {
         public ulong DiscordId { get; set; }
     }
 
+    [Function("withdrawEther")]
+    public class WithdrawEtherFunction : FunctionMessage {
+        [Parameter("uint256", "amount", 1)]
+        public BigInteger Amount { get; set; }
+
+        [Parameter("uint256", "fee", 2)]
+        public BigInteger Fee { get; set; }
+
+        [Parameter("address", "recipient", 3)]
+        public string Recipient { get; set; }
+
+        [Parameter("uint64", "discordId", 4)]
+        public ulong DiscordId { get; set; }
+    }
+
     [Function("transfer")]
     public class TransferFunction : FunctionMessage {
         [Parameter("address", "_to", 1)]

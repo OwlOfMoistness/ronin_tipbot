@@ -22,6 +22,7 @@ using System.Net;
 namespace TipBot {
     public class SmartContract {
         //public static string TIP_ADDRESS = "0xa6dc4ebf7b56e2f9c0e701939f24e2122af3f681";
+        public static string RON = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
         public static string TIP_ADDRESS = "0xA646Ac048c316de2479c6A1Ab81317303296f45C";
         //public static string RONIN_ENDPOINT = "http://localhost:8845";
         public static string RONIN_ENDPOINT = "http://10.0.0.10:8845";
@@ -150,22 +151,39 @@ namespace TipBot {
                     web3 = new Web3(account, RONIN_ENDPOINT);
                 else
                     web3 = new Web3(account, RONIN_ENDPOINT);
+                var txReceipt = "";
+                if (tokenAddress == RON) {
+                    var withdrawHandler = web3.Eth.GetContractTransactionHandler<WithdrawEtherFunction>();
 
-                var withdrawHandler = web3.Eth.GetContractTransactionHandler<WithdrawTokenFunction>();
+                    var functionParams = new WithdrawEtherFunction() {
+                        Amount = amount,
+                        Fee = fee,
+                        Recipient = recipient,
+                        DiscordId = discordId
+                    };
+                    var gasFee = 20;
+                    functionParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
+                    var estimateGas = await withdrawHandler.EstimateGasAsync(TIP_ADDRESS, functionParams);
+                    functionParams.Gas = estimateGas;
+                    txReceipt = await withdrawHandler.SendRequestAsync(TIP_ADDRESS, functionParams);
+                }
+                else {
+                    var withdrawHandler = web3.Eth.GetContractTransactionHandler<WithdrawTokenFunction>();
 
-                var functionParams = new WithdrawTokenFunction() {
-                    Amount = amount,
-                    Fee = fee,
-                    TokenContract = tokenAddress,
-                    Recipient = recipient,
-                    DiscordId = discordId
-                };
-                var gasFee = 20;
-                functionParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
+                    var functionParams = new WithdrawTokenFunction() {
+                        Amount = amount,
+                        Fee = fee,
+                        TokenContract = tokenAddress,
+                        Recipient = recipient,
+                        DiscordId = discordId
+                    };
+                    var gasFee = 20;
+                    functionParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
 
-                var estimateGas = await withdrawHandler.EstimateGasAsync(TIP_ADDRESS, functionParams);
-                functionParams.Gas = estimateGas;
-                var txReceipt = await withdrawHandler.SendRequestAsync(TIP_ADDRESS, functionParams);
+                    var estimateGas = await withdrawHandler.EstimateGasAsync(TIP_ADDRESS, functionParams);
+                    functionParams.Gas = estimateGas;
+                    txReceipt = await withdrawHandler.SendRequestAsync(TIP_ADDRESS, functionParams);
+                }
                 //if (txReceipt.Status.Value == BigInteger.One) {
                 //    embed.WithColor(Color.Green);
                 //    embed.WithTitle("Withdrawal Transaction Successful!");
