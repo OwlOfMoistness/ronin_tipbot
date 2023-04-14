@@ -31,19 +31,20 @@ namespace TipBot {
             foreach (var key in keyList)
                 focusDic.Remove(key);
             if (focusDic.ContainsKey(reaction.UserId)) {
-                if (focusDic[reaction.UserId].Message.Id == msg.Value.Id && now - focusDic[reaction.UserId].TimeStamp < 120) {
+                var botMsg = focusDic[reaction.UserId].Message as IUserMessage;
+                if (focusDic[reaction.UserId].Message.Id == msg.Id && now - focusDic[reaction.UserId].TimeStamp < 120) {
                     switch (reaction.Emote.Name) {
                         case "👋":
-                            await msg.Value.ModifyAsync(m => m.Embed = HelpMessages.FillIntroMessage().Build());
+                            await botMsg.ModifyAsync(m => m.Embed = HelpMessages.FillIntroMessage().Build());
                             break;
                         case "💰":
-                            await msg.Value.ModifyAsync(m => m.Embed = HelpMessages.FillWalletMessage().Build());
+                            await botMsg.ModifyAsync(m => m.Embed = HelpMessages.FillWalletMessage().Build());
                             break;
                         case "🎲":
-                            await msg.Value.ModifyAsync(m => m.Embed = HelpMessages.FillGamblingMessage().Build());
+                            await botMsg.ModifyAsync(m => m.Embed = HelpMessages.FillGamblingMessage().Build());
                             break;
                     }
-                    await msg.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
+                    await botMsg.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
                 }
             }
         }
