@@ -37,6 +37,8 @@ namespace TipBot {
         [Command("stats")]
         [Alias("stat")]
         public async Task GetPlayerStats(string symbol, ulong user) {
+            if (!IsDev(Context))
+                return;
             var stats = await TipBot.Games.TipPlayerStats.GetStats(user);
             var token = await ServiceData.GetTokenSymbol(symbol);
             if (stats == null || token == null)
@@ -103,9 +105,22 @@ namespace TipBot {
 
         [Command("testDeposit")]
         public async Task TestDeposi(string sym, string amount) {
+            if (!IsDev(Context))
+                return;
             var list = await ServiceData.GetList();
             var nft = list.tokenList.Where(n => n.Symbol == sym.ToUpper()).FirstOrDefault();
             await TransferFunctions.DepositTokens(Context.Message.Author.Id, nft.ContractAddress, BigInteger.Parse(amount), "");
+            await Context.Message.AddReactionAsync(new Emoji("✅"));
+        }
+
+
+        [Command("depositTo")]
+        public async Task DepositT0(string sym, string amount, IUser u) {
+            if (!IsDev(Context))
+                return;
+            var list = await ServiceData.GetList();
+            var nft = list.tokenList.Where(n => n.Symbol == sym.ToUpper()).FirstOrDefault();
+            await TransferFunctions.DepositTokens(u.Id, nft.ContractAddress, BigInteger.Parse(amount), "");
             await Context.Message.AddReactionAsync(new Emoji("✅"));
         }
 

@@ -28,80 +28,80 @@ namespace TipBot {
             };
         }
 
-        [Command("stats")]
-        [Alias("stat")]
-        public async Task GetPlayerStats(string symbol) {
-            var stats = await TipPlayerStats.GetStats(Context.Message.Author.Id);
-            var token = await ServiceData.GetTokenSymbol(symbol);
-            if (stats == null || token == null)
-                return;
-            await ReplyAsync(embed: Embeds.GetPlayerStats(stats, token, Context.Message.Author.Username));
-        }
+        //[Command("stats")]
+        //[Alias("stat")]
+        //public async Task GetPlayerStats(string symbol) {
+        //    var stats = await TipPlayerStats.GetStats(Context.Message.Author.Id);
+        //    var token = await ServiceData.GetTokenSymbol(symbol);
+        //    if (stats == null || token == null)
+        //        return;
+        //    await ReplyAsync(embed: Embeds.GetPlayerStats(stats, token, Context.Message.Author.Username));
+        //}
 
-        [Command("etheroll", RunMode = RunMode.Async)]
-        [Alias("er", "roll")]
-        public async Task Etheroll(string amount, string symbol, int rollUnder) {
-            if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
-                return;
-            if (rollUnder < 2 || rollUnder > 99) {
-                await ReplyAsync("🚫 Roll_under value must be between [2;99]");
-                return;
-            }
-            lock (PendingQueue.obj) {
-                PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Game,
-                    new PendingGame(Context.Message.Author, amount, symbol, rollUnder.ToString(), 100, rollUnder - 1, GameEnum.Etheroll, Context.Message.Id, Context.Channel)));
-            }
-        }
+        //[Command("etheroll", RunMode = RunMode.Async)]
+        //[Alias("er", "roll")]
+        //public async Task Etheroll(string amount, string symbol, int rollUnder) {
+        //    if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
+        //        return;
+        //    if (rollUnder < 2 || rollUnder > 99) {
+        //        await ReplyAsync("🚫 Roll_under value must be between [2;99]");
+        //        return;
+        //    }
+        //    lock (PendingQueue.obj) {
+        //        PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Game,
+        //            new PendingGame(Context.Message.Author, amount, symbol, rollUnder.ToString(), 100, rollUnder - 1, GameEnum.Etheroll, Context.Message.Id, Context.Channel)));
+        //    }
+        //}
 
-        [Command("coinflip", RunMode = RunMode.Async)]
-        [Alias("coin", "flip", "cf")]
-        public async Task Coinflip(string amount, string symbol, string outcome) {
-            if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
-                return;
-            if (outcome.ToLower() != "heads" && outcome.ToLower() != "tails") {
-                await ReplyAsync("🚫 Possible outcomes are `heads` or `tails`");
-                return;
-            }
-            lock (PendingQueue.obj) {
-                PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Game,
-                    new PendingGame(Context.Message.Author, amount, symbol, outcome, 2, 1, GameEnum.Coinflip, Context.Message.Id, Context.Channel)));
-            }
-        }
+        //[Command("coinflip", RunMode = RunMode.Async)]
+        //[Alias("coin", "flip", "cf")]
+        //public async Task Coinflip(string amount, string symbol, string outcome) {
+        //    if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
+        //        return;
+        //    if (outcome.ToLower() != "heads" && outcome.ToLower() != "tails") {
+        //        await ReplyAsync("🚫 Possible outcomes are `heads` or `tails`");
+        //        return;
+        //    }
+        //    lock (PendingQueue.obj) {
+        //        PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Game,
+        //            new PendingGame(Context.Message.Author, amount, symbol, outcome, 2, 1, GameEnum.Coinflip, Context.Message.Id, Context.Channel)));
+        //    }
+        //}
 
 
-        [Command("blackjack", RunMode = RunMode.Async)]
-        [Alias("bj", "21")]
-        public async Task BlackjackGame(string amount, string symbol) {
-            if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
-                return;
-            IUserMessage reactMsg = null;
-            var previousInstance = await Blackjack.GetBlackJackInstance(Context.Message.Author.Id);
-            if (previousInstance != null) {
-                if (Convert.ToInt32(((DateTimeOffset)(DateTime.UtcNow)).ToUnixTimeSeconds()) - previousInstance.TimeStamp < 24 * 3600) {
-                    reactMsg = await ReplyAsync(embed: (await previousInstance.GetBlackjackOngoingEmbed()).Build());
-                    await reactMsg.AddReactionsAsync(new IEmote[4] { new Emoji("✅"), new Emoji("🚫"), new Emoji("⏫"), new Emoji("🔄") });
-                    if (focusBlackjack.ContainsKey(Context.Message.Author.Id))
-                        focusBlackjack[Context.Message.Author.Id].UpdateFocus(reactMsg);
-                    else {
-                        var token = await TransferHelper.ServiceData.GetTokenSymbol(previousInstance.TokenSymbol);
-                        focusBlackjack.Add(Context.Message.Author.Id,
-                            new GambleReactionFocus(reactMsg, GameEnum.Blackjack, "",
-                            TransferHelper.TransferFunctions.FormatUint(previousInstance.BetValue, token.Decimal, true), previousInstance.TokenSymbol));
-                    }
-                }
-                else {
-                    await ReplyAsync("You took too long to finish your previous Blackjack game. You have lost your bet");
-                    await previousInstance.DeleteFromDatabase();
-                }
+        //[Command("blackjack", RunMode = RunMode.Async)]
+        //[Alias("bj", "21")]
+        //public async Task BlackjackGame(string amount, string symbol) {
+        //    if (Context.Guild != null && !await GuildParametres.CanPlay(Context.Guild.Id, Context.Channel.Id))
+        //        return;
+        //    IUserMessage reactMsg = null;
+        //    var previousInstance = await Blackjack.GetBlackJackInstance(Context.Message.Author.Id);
+        //    if (previousInstance != null) {
+        //        if (Convert.ToInt32(((DateTimeOffset)(DateTime.UtcNow)).ToUnixTimeSeconds()) - previousInstance.TimeStamp < 24 * 3600) {
+        //            reactMsg = await ReplyAsync(embed: (await previousInstance.GetBlackjackOngoingEmbed()).Build());
+        //            await reactMsg.AddReactionsAsync(new IEmote[4] { new Emoji("✅"), new Emoji("🚫"), new Emoji("⏫"), new Emoji("🔄") });
+        //            if (focusBlackjack.ContainsKey(Context.Message.Author.Id))
+        //                focusBlackjack[Context.Message.Author.Id].UpdateFocus(reactMsg);
+        //            else {
+        //                var token = await TransferHelper.ServiceData.GetTokenSymbol(previousInstance.TokenSymbol);
+        //                focusBlackjack.Add(Context.Message.Author.Id,
+        //                    new GambleReactionFocus(reactMsg, GameEnum.Blackjack, "",
+        //                    TransferHelper.TransferFunctions.FormatUint(previousInstance.BetValue, token.Decimal, true), previousInstance.TokenSymbol));
+        //            }
+        //        }
+        //        else {
+        //            await ReplyAsync("You took too long to finish your previous Blackjack game. You have lost your bet");
+        //            await previousInstance.DeleteFromDatabase();
+        //        }
 
-            }
-            else {
-                lock (PendingQueue.obj) {
-                    PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Blackjack,
-                        new PendingBlackjack(Context.Message.Author, amount, symbol, Context.Message.Id, Context.Channel, BlackJackState.Start)));
-                }
-            }
-        }
+        //    }
+        //    else {
+        //        lock (PendingQueue.obj) {
+        //            PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Blackjack,
+        //                new PendingBlackjack(Context.Message.Author, amount, symbol, Context.Message.Id, Context.Channel, BlackJackState.Start)));
+        //        }
+        //    }
+        //}
 
         public static void UpdateGambleFocus(ulong id, IUserMessage reactMsg, GameEnum game, string betCondition, string amount, string symbol) {
             if (focusBet.ContainsKey(id))
