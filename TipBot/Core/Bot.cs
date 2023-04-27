@@ -40,6 +40,7 @@ namespace TipBot {
             DiscordClient.ReactionAdded += WithdrawalReactionFocus.HandleWithdrawalReactions;
             DiscordClient.Ready += PendingQueue.RunTaskLoop;
             DiscordClient.Ready += PendingWithdrawal.RunWithdrawalLoop;
+            DiscordClient.Ready += PendingDeposit.RunDepositLoop;
         }
 
         ~Bot() {

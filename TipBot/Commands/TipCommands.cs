@@ -225,26 +225,18 @@ namespace TipBot {
         }
 
         [Command("deposit", RunMode = RunMode.Async)]
-        public async Task DepositTokens(string value, string symbol) {
+        public async Task DepositTokens(string symbol) {
             if (!IsDev(Context))
                 return;
-            var baseUrl = "https://cesarsld.github.io/TipBotDepositWebsite/";
-            var urlParams = "";
             var token = await ServiceData.GetTokenSymbol(symbol);
             if (token == null) {
                 await ReplyAsync(embed: Embeds.BasicEmbed("🚫 Deposit Error", "Token not supported", Color.Red));
                 return;
             }
-            var testWallet = new TipWallet(token.ContractAddress, token.Symbol, token.Decimal);
-            if (!testWallet.IsValidValue(value)) {
-                await ReplyAsync(embed: Embeds.BasicEmbed("🚫 Deposit Error", "Wrong value format", Color.Red));
-                return;
+            lock (PendingQueue.obj) {
+                PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Deposit,
+                    new PendingDeposit(Context.Message.Author.Id, token.Symbol)));
             }
-            urlParams = $"?token={token.ContractAddress}&amount={testWallet.ParseValue(value)}&decimal={token.Decimal}&discordId={Context.Message.Author.Id}&symbol={token.Symbol}";
-            baseUrl += urlParams;
-
-            await Context.Message.Author.SendMessageAsync("Contact Owl");
-            //await Context.Message.Author.SendMessageAsync(embed: Embeds.DepositEmbed(baseUrl, value, symbol));
         }
 
         [Command("SetWithdrawal", RunMode = RunMode.Async)]

@@ -74,6 +74,10 @@ namespace TipBot.TransferHelper.PendingObjects {
                     var pBJ = (PendingBlackjack)TypeObj;
                     await pBJ.HandleState();
                     break;
+                case TransactionType.Deposit:
+                    var pD = (PendingDeposit)TypeObj;
+                    await pD.LogPendingDeposit();
+                    break;
             }
         }
     }

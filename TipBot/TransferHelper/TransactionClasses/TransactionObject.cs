@@ -22,7 +22,7 @@ namespace TipBot.TransferHelper {
         public async Task<bool> ApproveSender(ulong sender) {
             Sender = await TipUser.GetUser(sender);
             if (Sender == null) {
-                ErrorMessage = "Sender does not have token.";
+                ErrorMessage = "Sender does not exist.";
                 return false;
             }
             return true;

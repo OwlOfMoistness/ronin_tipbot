@@ -21,13 +21,17 @@ using System.Net;
 
 namespace TipBot {
     public class SmartContract {
-        //public static string TIP_ADDRESS = "0xa6dc4ebf7b56e2f9c0e701939f24e2122af3f681";
+        //public static string OLD_TIP_ADDRESS = "0xA646Ac048c316de2479c6A1Ab81317303296f45C";
         public static string RON = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-        public static string TIP_ADDRESS = "0xA646Ac048c316de2479c6A1Ab81317303296f45C";
+        public static string TIP_ADDRESS = "0x4c7EFee4315E8Ed23B02fDcC8148B19D8f624D32";
+        public static string FACTORY_ADDRESS = "0x70469Dc24C12f97087661fB6471569265D8E781C";
         //public static string RONIN_ENDPOINT = "http://localhost:8845";
         public static string RONIN_ENDPOINT = "http://10.0.0.10:8845";
         public static bool withdrawalPossible = true;
+        public static bool depositPossible = true;
         public static string DiscoKey;
+        public static string DepositKey;
+        public static int CHAIN_ID = 2020;
 
 
         //public static async Task<BigInteger> GetSlpPriceSell() {
@@ -136,8 +140,136 @@ namespace TipBot {
         //    var estimateGas = await withdrawHandler.EstimateGasAsync(TIP_ADDRESS, functionParams);
         //    return estimateGas.Value;
         //}
+        public static async Task<(bool, string)> ValidateTransaction(string hash) {
+            var web3 = new Web3(RONIN_ENDPOINT);
 
-        // TODO Add param for gas from ethgasstation
+            try {
+                var tx = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(hash);
+
+                //var tx = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(hash);
+                if (tx == null)
+                    return (false, "!find");
+                else
+                    return (tx.Succeeded(), hash);
+
+            }
+            catch (Exception e) {
+                return (false, e.Message);
+            }
+            
+        }
+
+        public static async Task<BigInteger> BalanceOf(string token, string user) {
+            var web3 = new Web3(RONIN_ENDPOINT);
+
+            if (token == RON) {
+                var ret = await web3.Eth.GetBalance.SendRequestAsync(user);
+                return ret;
+            }
+
+            var funcParams = new BalanceOf() {
+                User = user,
+            };
+            var handler = web3.Eth.GetContractQueryHandler<BalanceOf>();
+            var res = await handler.QueryAsync<BigInteger>(token, funcParams);
+            return res;
+        }
+
+        public static async Task<string> GetDepositAddress(BigInteger discordId) {
+            var web3 = new Web3(RONIN_ENDPOINT);
+
+            var funcParams = new GetDeterministicDepositAddress() {
+                DiscordId = discordId,
+            };
+            var handler = web3.Eth.GetContractQueryHandler<GetDeterministicDepositAddress>();
+            var res = await handler.QueryAsync<string>(FACTORY_ADDRESS, funcParams);
+            return res;
+        }
+
+        public static async Task<bool> IsDeployed(BigInteger discordId) {
+            var web3 = new Web3(RONIN_ENDPOINT);
+
+            var address = await GetDepositAddress(discordId);
+            return await IsDeployed(address);
+        }
+
+        public static async Task<bool> IsDeployed(string address) {
+            var web3 = new Web3(RONIN_ENDPOINT);
+
+            var funcParams = new Deployed() {
+                Address = address,
+            };
+            var handler = web3.Eth.GetContractQueryHandler<Deployed>();
+            var res = await handler.QueryAsync<bool>(FACTORY_ADDRESS, funcParams);
+            return res;
+        }
+
+        public static async Task<bool> GenerateDepositAddress(BigInteger discordId) {
+            try {
+
+                var myPassword = DepositKey;
+                var account = new Account(myPassword, CHAIN_ID);
+                var web3 = new Web3(account, RONIN_ENDPOINT);
+
+                var funcParams = new GenerateDepositAddress() {
+                    DiscordId = discordId,
+                };
+                var handler = web3.Eth.GetContractTransactionHandler<GenerateDepositAddress>();
+                var gasFee = 20;
+                funcParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
+                var estimateGas = await handler.EstimateGasAsync(FACTORY_ADDRESS, funcParams);
+                funcParams.Gas = estimateGas;
+                var receipt = await handler.SendRequestAndWaitForReceiptAsync(FACTORY_ADDRESS, funcParams);
+                return receipt.Succeeded();
+            }
+            catch (Exception e) {
+                return false;
+            }
+        }
+
+        public static async Task<(bool, string)> DepositTokens(BigInteger discordId, string tokenAddress, BigInteger value) {
+            var txReceipt = "";
+            try {
+                depositPossible = false;
+                var myPassword = DepositKey;
+                var account = new Account(myPassword, CHAIN_ID);
+                var web3 = new Web3(account, RONIN_ENDPOINT);
+
+                var depositAddress = await GetDepositAddress(discordId);
+
+                if (tokenAddress == RON) {
+                    var funcParams = new TransferNativeToken() {
+                        Amount = value
+                    };
+                    var depositHandler = web3.Eth.GetContractTransactionHandler<TransferNativeToken>();
+                    var gasFee = 20;
+                    funcParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
+                    var estimateGas = await depositHandler.EstimateGasAsync(depositAddress, funcParams);
+                    funcParams.Gas = estimateGas;
+                    txReceipt = await depositHandler.SendRequestAsync(depositAddress, funcParams);
+                }
+                else {
+                    var funcParams = new TransferERC20Token() {
+                        Token = tokenAddress,
+                        Amount = value
+                    };
+                    var depositHandler = web3.Eth.GetContractTransactionHandler<TransferERC20Token>();
+                    var gasFee = 20;
+                    funcParams.GasPrice = Web3.Convert.ToWei(gasFee, UnitConversion.EthUnit.Gwei);
+                    var estimateGas = await depositHandler.EstimateGasAsync(depositAddress, funcParams);
+                    funcParams.Gas = estimateGas;
+                    txReceipt = await depositHandler.SendRequestAsync(depositAddress, funcParams);
+                }
+            }
+            catch (Exception e) {
+                depositPossible = true;
+                Console.WriteLine("Error : " + e.Message);
+                return (false, "Error occured, transaction could not be broadcasted");
+            }
+            depositPossible = true;
+            return (true, txReceipt);
+        }
+
         public static async Task<(bool, string)> WithdrawTokens(BigInteger amount, BigInteger fee, string tokenAddress, string recipient, ulong discordId) {
             var embed = new EmbedBuilder();
             var res = "";
@@ -145,7 +277,7 @@ namespace TipBot {
                 recipient = SanitiseAddress(recipient);
                 withdrawalPossible = false;
                 var myPassword = DiscoKey;
-                var account = new Account(myPassword, 2020);
+                var account = new Account(myPassword, CHAIN_ID);
                 Web3 web3;
                 if (Program.IsRelease)
                     web3 = new Web3(account, RONIN_ENDPOINT);

@@ -96,12 +96,30 @@ namespace TipBot.EmbedMessages {
             return embed.Build();
         }
 
-        public static Embed DepositEmbed(string baseUrl, string value, string symbol) {
+        public static Embed DepositConfirmationEmbed(string value, Token token) {
             var embed = new EmbedBuilder();
             embed.WithColor(Color.Green);
-            embed.WithTitle("Click here to deposit Tokens");
-            embed.WithUrl(baseUrl);
-            embed.WithDescription($"Depositing {value} {symbol.ToUpper()} to the TipBot smart contract.");
+            embed.WithTitle("🎉 Deposit Successful 🎉");
+            embed.WithDescription($"Your deposit of {value} {token.Emote} {token.Symbol.ToUpper()} has been included in you wallet.");
+            return embed.Build();
+        }
+
+        public static Embed DepositPendingEmbed(string value, Token token) {
+            var embed = new EmbedBuilder();
+            embed.WithColor(Color.Gold);
+            embed.WithTitle("⚠️ Deposit detected ⚠️");
+            embed.WithDescription($"Your deposit of {value} {token.Emote} {token.Symbol.ToUpper()} has been detected and is currently being processed.");
+            embed.WithFooter("Funds will be deposited on your wallet as soon as transaction is confirmed.");
+            return embed.Build();
+        }
+
+        public static Embed DepositEmbed(string deposit, Token token) {
+            var embed = new EmbedBuilder();
+            embed.WithColor(Color.Purple);
+            embed.WithTitle("💰 Deposit request 💰");
+            embed.WithDescription($"Please deposit {token.Symbol.ToUpper()} {token.Emote} tokens to your deposit address and call this command again.");
+            embed.AddField("Your Address", "ronin:" + deposit.Substring(2));
+            embed.WithFooter("Please note this address is unique to YOU and no one else. Only send the supported tokens and DO NOT send tokens to any other addresses given by other members.");
             return embed.Build();
         }
 

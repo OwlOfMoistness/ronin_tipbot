@@ -11,13 +11,14 @@ namespace TipBot {
         static void Main(string[] args) {
             Mongo.DatabaseConnection.MongoUrl = args[0];
             SmartContract.DiscoKey = args[4];
+            SmartContract.DepositKey = args[5];
             if (args[1] == "prod") {
                 Mongo.DatabaseConnection.DatabaseName = "TipDataTest";
                 IsRelease = true;
             }
             else {
                 Mongo.DatabaseConnection.DatabaseName = "TipDataTest";
-                SmartContract.RONIN_ENDPOINT = args[5];
+                SmartContract.RONIN_ENDPOINT = args[6];
             }
             RunBot(token: args[2], prefix: args[3]);
         }
