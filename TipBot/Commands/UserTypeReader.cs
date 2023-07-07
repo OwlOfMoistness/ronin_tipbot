@@ -12,6 +12,7 @@ namespace TipBot.Commands {
             where T : class, IUser {
         /// <inheritdoc />
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services) {
+            Console.WriteLine("wee");
             var results = new Dictionary<ulong, TypeReaderValue>();
             IAsyncEnumerable<IUser> channelUsers = context.Channel.GetUsersAsync(CacheMode.AllowDownload).Flatten(); // it's better
             IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
