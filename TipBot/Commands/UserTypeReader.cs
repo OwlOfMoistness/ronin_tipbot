@@ -13,26 +13,26 @@ namespace TipBot.Commands {
         /// <inheritdoc />
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services) {
             var results = new Dictionary<ulong, TypeReaderValue>();
-            IAsyncEnumerable<IUser> channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten(); // it's better
+            IAsyncEnumerable<IUser> channelUsers = context.Channel.GetUsersAsync(CacheMode.AllowDownload).Flatten(); // it's better
             IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
 
             if (context.Guild != null)
-                guildUsers = await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false);
+                guildUsers = await context.Guild.GetUsersAsync(CacheMode.AllowDownload).ConfigureAwait(false);
 
             //By Mention (1.0)
             if (MentionUtils.TryParseUser(input, out var id)) {
                 if (context.Guild != null)
-                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false) as T, 1.00f);
+                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 1.00f);
                 else
-                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false) as T, 1.00f);
+                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 1.00f);
             }
 
             //By Id (0.9)
             if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id)) {
                 if (context.Guild != null)
-                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false) as T, 0.90f);
+                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
                 else
-                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false) as T, 0.90f);
+                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
             }
 
             //By Username + Discriminator (0.7-0.85)

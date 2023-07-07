@@ -115,7 +115,7 @@ namespace TipBot.TransferHelper.PendingObjects {
                     await session.CommitTransactionAsync();
                 }
                 catch (Exception e) {
-                    Logger.LogInternal("Execute withdrawal error : " + e.Message);
+                    Logger.LogInternal("Execute deposit error : " + e.Message);
                     await session.AbortTransactionAsync();
                 }
             }
@@ -129,7 +129,7 @@ namespace TipBot.TransferHelper.PendingObjects {
                     await session.CommitTransactionAsync();
                 }
                 catch (Exception e) {
-                    Logger.LogInternal("Execute withdrawal error : " + e.Message);
+                    Logger.LogInternal("Execute deposit release error : " + e.Message);
                     await session.AbortTransactionAsync();
                 }
             }
@@ -152,7 +152,7 @@ namespace TipBot.TransferHelper.PendingObjects {
                         await ExecuteDeposit();
                 }
                 catch (Exception e) {
-                    Logger.LogInternal("Withdrawal loop error : " + e.Message);
+                    Logger.LogInternal("Deposit loop error : " + e.Message);
                 }
                 await Task.Delay(3000);
             }
