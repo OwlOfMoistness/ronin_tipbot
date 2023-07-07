@@ -17,9 +17,11 @@ namespace TipBot.Commands {
             IAsyncEnumerable<IUser> channelUsers = context.Channel.GetUsersAsync(CacheMode.AllowDownload).Flatten(); // it's better
             IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
 
-            if (context.Guild != null)
-                guildUsers = await context.Guild.GetUsersAsync(CacheMode.AllowDownload).ConfigureAwait(false);
+            //Console.WriteLine("w11");
+            //if (context.Guild != null)
+            //    guildUsers = await context.Guild.GetUsersAsync(CacheMode.AllowDownload).ConfigureAwait(false);
 
+            Console.WriteLine("woo");
             //By Mention (1.0)
             if (MentionUtils.TryParseUser(input, out var id)) {
                 if (context.Guild != null)
@@ -84,8 +86,8 @@ namespace TipBot.Commands {
             IAsyncEnumerable<IUser> channelUsers = context.Channel.GetUsersAsync(CacheMode.AllowDownload).Flatten(); // it's better
             IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
 
-            if (context.Guild != null)
-                guildUsers = await context.Guild.GetUsersAsync(CacheMode.AllowDownload).ConfigureAwait(false);
+            // if (context.Guild != null)
+            //     guildUsers = await context.Guild.GetUsersAsync(CacheMode.AllowDownload).ConfigureAwait(false);
 
             var guild = await Bot.DiscordClient.Rest.GetGuildAsync(context.Guild.Id);
             var channel = await Bot.DiscordClient.Rest.GetChannelAsync(context.Channel.Id) as RestDMChannel;
