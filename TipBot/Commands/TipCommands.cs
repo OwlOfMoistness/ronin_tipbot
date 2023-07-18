@@ -226,8 +226,8 @@ namespace TipBot {
 
         [Command("deposit", RunMode = RunMode.Async)]
         public async Task DepositTokens(string symbol) {
-            if (!IsDev(Context))
-                return;
+            //if (!IsDev(Context))
+            //    return;
             var token = await ServiceData.GetTokenSymbol(symbol);
             if (token == null) {
                 await ReplyAsync(embed: Embeds.BasicEmbed("🚫 Deposit Error", "Token not supported", Color.Red));
