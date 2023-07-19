@@ -21,7 +21,7 @@ namespace TipBot.EmbedMessages {
             embed.WithTitle("💰 **Wallet**");
             embed.WithDescription("TipBot allows you to tip other users and withdraw tokens from and to the Ronin blockchain");
             embed.AddField("Tip", "`$tip 13 DAI @user` You can can tip one or many people at the same time");
-            //embed.AddField("📥 Deposit", "`$deposit 13 DAI` Replace DAI by the token you want to deposit in your TipBot account. A private message will explain the step to get your tokens on the TipBot service!");
+            embed.AddField("📥 Deposit", "`$deposit AXS` Replace AXS by the token you want to deposit in your TipBot account. A private message will explain the step to get your tokens on the TipBot service!");
             embed.AddField("📤 Withdraw", "`$withdraw 15 DAI` Replace DAI by the token you want to withdraw to your ethereum wallet. Make sure you have withdrawal address set up using `$setwithdrawal ronin:your_address_goes_here`");
             embed.AddField("💵 Balances", "`$bal` Will give you the balance of each token you own.");
             embed.AddField("📜 Token List", "`$token` Will give the list of currently supported tokens.");

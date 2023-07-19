@@ -105,10 +105,21 @@ namespace TipBot.TransferHelper.PendingObjects {
         }
 
         private async Task ExecuteDepositTransaction(TipUser user, TipWallet lockedWallet, Token token) {
-            var wallet = await TipWallet.GetWallet(user.walletList[token.Symbol]);
+            TipWallet wallet;
+            string walletId;
+            if (!user.walletList.ContainsKey(token.Symbol)) {
+                wallet = new TipWallet(token.ContractAddress, token.Symbol, token.Decimal);
+                walletId = wallet.id.ToString();
+                user.walletList.Add(token.Symbol, walletId);
+            }
+            else {
+                walletId = user.walletList[token.Symbol];
+                wallet = await TipWallet.GetWallet(walletId);
+            }
             using (var session = DatabaseConnection.GetClient().StartSession()) {
                 try {
                     session.StartTransaction();
+                    await user.SaveToDatabase(session);
                     wallet.Add(BigInteger.Parse(lockedWallet.Value));
                     await wallet.SaveToDatabase(session);
                     await lockedWallet.DeleteFromDatabase(session);
