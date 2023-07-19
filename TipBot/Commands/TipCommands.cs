@@ -190,27 +190,9 @@ namespace TipBot {
         [Command("withdraw", RunMode = RunMode.Async)]
         public async Task WithdrawTokens(string value, string symbol) {
             WithdrawalObject withdrawalObject;
-            Token token = null;
             var strFee = "0";
-            // TODO change to SLP on mainnet
-            if (symbol.ToUpper() == "SLP" || symbol.ToUpper() == "HAUT") {
-                token = await ServiceData.GetTokenSymbol(symbol);
-                var fee = 0;
-                strFee = fee.ToString();
-            }
-            else if (symbol.ToUpper() == "AXS" || symbol.ToUpper() == "RON") {
-                token = await ServiceData.GetTokenSymbol(symbol);
-                //if (TipWallet.IsValidValue(value, token.Decimal)) {
-                //    //var val = TipWallet.ParseValueToTokenDecimal(value, token.Decimal);
-                //    //var gas = await SmartContract.EstimateGasWithdrawTokens(BigInteger.Parse(val), 1, token.ContractAddress, "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", 0);
-                //    //gas = SmartContract.GetTotalGas(await SmartContract.GetGas("fastest"), gas);
-                //    //strFee = await GetTokenFee(token.ContractAddress, token.Decimal, gas);
-                //}
-                //else {
-                //    await Context.Message.Author.SendMessageAsync(embed: Embeds.BasicEmbed("🚫 Withdrawal Error", "Wrong value format", Color.Red));
-                //    return;
-                //}
-            }
+            var token = await ServiceData.GetTokenSymbol(symbol);
+
             withdrawalObject = await WithdrawalObject.GetWithdrawalApproval(Context.Message.Author.Id, symbol, value, strFee);
             if (!withdrawalObject.Approved) {
                 await Context.Message.Author.SendMessageAsync(embed: Embeds.BasicEmbed("🚫 Withdrawal Error", withdrawalObject.ErrorMessage, Color.Red));
