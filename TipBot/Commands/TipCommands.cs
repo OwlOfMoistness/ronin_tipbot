@@ -210,15 +210,15 @@ namespace TipBot {
         public async Task DepositTokens(string symbol) {
             //if (!IsDev(Context))
             //    return;
-            var token = await ServiceData.GetTokenSymbol(symbol);
-            if (token == null) {
-                await ReplyAsync(embed: Embeds.BasicEmbed("🚫 Deposit Error", "Token not supported", Color.Red));
+            //var token = await ServiceData.GetTokenSymbol(symbol);
+            //if (token == null) {
+                await ReplyAsync(embed: Embeds.BasicEmbed("Deposit Closed", "The Tipbot will be sunset and therefore deposits have been stopped", Color.Red));
                 return;
-            }
-            lock (PendingQueue.obj) {
-                PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Deposit,
-                    new PendingDeposit(Context.Message.Author.Id, token.Symbol)));
-            }
+            //}
+            //lock (PendingQueue.obj) {
+            //    PendingQueue.TransactionQueue.Enqueue(new PendingTransaction(Log.TransactionType.Deposit,
+            //        new PendingDeposit(Context.Message.Author.Id, token.Symbol)));
+            //}
         }
 
         [Command("SetWithdrawal", RunMode = RunMode.Async)]
